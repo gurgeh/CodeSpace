@@ -46,59 +46,99 @@ int StackMachine::AddOp(string name, int bit_length, int next_ok){
   return next_ok;
 }
 
-void StackMachine::push(){
+void StackMachine::push(long long val){
+  stackptr_ = (stackptr_ + 1) % stack_size_;
+  stack_[stackptr_] = val;
 }
 
-void StackMachine::peek(){
+long long StackMachine::peek(){
+  return stack_[stackptr_];
 }
 
-void StackMachine::pop(){
+long long StackMachine::pop(){
+  long long val = stack_[stackptr_--];
+  if(stackptr_ == -1) stackptr_ = stack_size_ - 1;
+  return val;
 }
 
 void StackMachine::Execute(){
   AddSuffix();
   memset(stack_, default_stack_value_, stack_size_ * sizeof(long long));
-  iptr = 0;
+  int iptr = 0;
+  int used_jumps = 0;
+  bool cflag = false;
+
   stackptr_ = 0;
   output_length_ = 0;
-  used_jumps = 0;
+  long long temp;
 
   while(true){
-    switch(current_program_[iptr++]){
+    int op = current_program_[iptr++];
+    switch(op){
     case 0: //Add
+      push(pop() + pop());
       break;
     case 1: //Mul
+      push(pop() * pop());
       break;
     case 2: //XOR
+      push(pop() ^ pop());
       break;
     case 3: //Less
+      temp1 = pop(); //C++ does not guarantee order
+      cflag = temp1() < pop();
       break;
     case 4: //Jump
       if(used_jumps++ < max_jumps) iptr = pop() % current_nr_ops_;
       break;
     case 5: //If
+      if(not cflag) iptr++;
       break;
     case 6: //Out
+      output_[output_length_++] = peek();
       break;
     case 7: //Dup
+      push(peek());
       break;
-    case 8: //Rot
+    case 8: //Mod
+      temp1 = pop();
+      temp2 = pop();
+      if(temp2 == 0) push(0);
+      else push(temp1 % temp2);
       break;
     case 9: //Over
+      temp1 = pop();
+      temp2 = pop();
+      push(temp1);
+      push(temp2);
+      push(temp1);
       break;
     case 10: //Swap
+      temp1 = pop();
+      temp2 = pop();
+      push(temp2);
+      push(temp1);
       break;
     case 11: //Div
+      temp1 = pop();
+      temp2 = pop();
+      if(temp2 == 0) push(temp1);
+      else push(temp1 / temp2);
       break;
     case 12: //OR
+      push(pop() | pop());
       break;
     case 13: //AND
+      push(pop() & pop());
       break;
     case 14: //Equal
+      cflag = (pop() == pop());
       break;
     case 15: //Neg
+      push(-pop());
       break;
     default: //Push const
+      push(op - 16);
     }
 
     if(iptr < 0) iptr = 0;
@@ -122,7 +162,7 @@ void StackMachine::AddOps(){
   next_ok = AddOp("Out", 4, next_ok);
   next_ok = AddOp("Dup", 4, next_ok);
 
-  next_ok = AddOp("Rot", 8, next_ok);
+  next_ok = AddOp("Mod", 8, next_ok);
   next_ok = AddOp("Over", 8, next_ok);
   next_ok = AddOp("Swap", 8, next_ok);
   next_ok = AddOp("Div", 8, next_ok);
