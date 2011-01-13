@@ -1,0 +1,5 @@
+env_opt = Environment(CCFLAGS = '-O3')
+env_dbg = Environment(CCFLAGS = '-ggdb -O0')
+env = Environment()
+env_opt.Program('codespace', source = ['machine.cc', 'stack_machine.cc', 'test.cc'])
+
