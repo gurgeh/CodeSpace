@@ -1,47 +1,58 @@
 #ifndef STACK_MACHINE_H
 #define STACK_MACHINE_H
 
+#include <algorithm>
 #include <string>
 #include <string.h>
+#include <stdio.h>
+
+#include "machine.h"
 
 /*
-  Print 
+  Dynamic NrChoices when few bits left
+  Print program
   Load bitseq
  */
 
 const int kNrOps = 16;
 const int kMaxProgramLength = 20;
+const int kConstPrefixLength = 2;
 
-class StackMachine : Machine{
+class StackMachine : public Machine{
  public:
-  StackMachine(int stack_size, int max_jumps, int max_bits) 
-    : Machine(max_bits),
-      stack_size_(stack_size),
-      max_jumps_(max_jumps),
-      current_nr_ops_(0);
+  StackMachine(int stack_size, long long default_stack_value, int max_jumps, int max_bits);
 
   ~StackMachine();
 
   void Execute();
   int NrChoices();
  
+  int AddCode(int code_idx);
+  void DelCode(int nr_bits);
+
  protected:
-  GetBits(int code_idx);
-  GetNrBits(int code_idx);
+  long long GetBits(int code_idx);
+  int GetNrBits(int code_idx);
   
  private:
   void AddOps();
-  int AddOp(string name, int bit_length, int next_ok);
+  int AddOp(std::string name, int bit_length, int next_ok);
 
   void AddSuffix();
 
+  void push(long long val);
+  long long peek();
+  long long pop();
+
   long long op_bits_[kNrOps];
   int nr_op_bits_[kNrOps];
-  string op_names_[kNrOps];
+  std::string op_names_[kNrOps];
   int current_added_ops_;
 
   long long *stack_;
+  long long default_stack_value_;
 
+  int stackptr_;
   int max_jumps_;
   int stack_size_;
   int current_nr_ops_;

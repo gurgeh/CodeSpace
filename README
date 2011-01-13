@@ -1,0 +1,9 @@
+This project implements a tiny stack based language (thus far interpreted, but one day soon compiled to x86), where most instructions are 4 or 5 bits long.
+
+All bit strings represent valid programs that can never throw exceptions. They are guaranteed to terminate, since the number of allowed jumps are fixed.
+
+Using this language, I can iterate through all possible programs up to a certain length and examine the output.
+
+I will soon add more documentation to this project. Just need to get the basics down.
+
+

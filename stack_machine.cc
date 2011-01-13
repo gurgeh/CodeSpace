@@ -1,17 +1,22 @@
 #include "stack_machine.h"
 
-StackMachine::StackMachine(){
+StackMachine::StackMachine(int stack_size, long long default_stack_value, int max_jumps, int max_bits)
+  : Machine(max_bits),
+    stack_size_(stack_size),
+    default_stack_value_(default_stack_value),
+    max_jumps_(max_jumps),
+    current_nr_ops_(0){
   AddOps();
   stack_ = new long long[stack_size_];
 }
 
 StackMachine::~StackMachine(){
-  del stack[];
+  delete[] stack_;
 }
 
 long long StackMachine::GetBits(int code_idx){
   if(code_idx >= kNrOps){
-    return 3 | (1 << (code_idx - kNrOps + 2));
+    return ((1 << kConstPrefixLength) - 1) | (1 << (code_idx - kNrOps + kConstPrefixLength));
   }
   return op_bits_[code_idx];
 }
@@ -32,14 +37,19 @@ int StackMachine::AddCode(int code_idx){
   return n;
 }
 
-int StackMachine::AddOp(string name, int bit_length, int next_ok){
-  op_names_[current_nr_ops_] = name
-  nr_op_bits_[current_nr_ops_] = bit_length;
+void StackMachine::DelCode(int nr_bits){
+  current_nr_ops_--;
+  Machine::DelCode(nr_bits);
+}
+
+int StackMachine::AddOp(std::string name, int bit_length, int next_ok){
+  op_names_[current_added_ops_] = name;
+  nr_op_bits_[current_added_ops_] = bit_length;
 
   //Reverse 8 bit integer
   int rbits = (next_ok * 0x0202020202ULL & 0x010884422010ULL) % 1023;
 
-  op_bits_[current_nr_ops_++] = rbits;
+  op_bits_[current_added_ops_++] = rbits;
 
   next_ok += (1 << 7) >> (bit_length - 1);
 
@@ -56,24 +66,28 @@ long long StackMachine::peek(){
 }
 
 long long StackMachine::pop(){
-  long long val = stack_[stackptr_--];
+  long long val = stack_[stackptr_];
+  stack_[stackptr_] = default_stack_value_;
+  stackptr_--;
   if(stackptr_ == -1) stackptr_ = stack_size_ - 1;
   return val;
 }
 
 void StackMachine::Execute(){
   AddSuffix();
-  memset(stack_, default_stack_value_, stack_size_ * sizeof(long long));
+  std::fill_n(stack_, stack_size_, default_stack_value_);
+
   int iptr = 0;
   int used_jumps = 0;
   bool cflag = false;
 
   stackptr_ = 0;
   output_length_ = 0;
-  long long temp;
+  long long temp1, temp2;
 
   while(true){
     int op = current_program_[iptr++];
+
     switch(op){
     case 0: //Add
       push(pop() + pop());
@@ -85,11 +99,11 @@ void StackMachine::Execute(){
       push(pop() ^ pop());
       break;
     case 3: //Less
-      temp1 = pop(); //C++ does not guarantee order
-      cflag = temp1() < pop();
+      temp1 = pop(); //C++ does not guarantee evaluation order
+      cflag = temp1 < pop();
       break;
     case 4: //Jump
-      if(used_jumps++ < max_jumps) iptr = pop() % current_nr_ops_;
+      if(used_jumps++ < max_jumps_) iptr = pop() % current_nr_ops_;
       break;
     case 5: //If
       if(not cflag) iptr++;
@@ -145,14 +159,24 @@ void StackMachine::Execute(){
     else if(iptr == current_nr_ops_) break;
     else iptr %= current_nr_ops_;
   }
+  current_nr_ops_ -= 3; //Remove suffix
 }
 
 int StackMachine::NrChoices(){
-  return 16 + (max_bits_ - (nr_current_bits_ + 2))
+  int nrconsts = max_bits_ - (nr_current_bits_ + 2);
+  if(nrconsts < (4 - 2)) return 0; //(smallest op - 2)
+  return 16 + nrconsts;
+}
+
+void StackMachine::AddSuffix(){
+  current_program_[current_nr_ops_++] = 6;
+  current_program_[current_nr_ops_++] = 16;
+  current_program_[current_nr_ops_++] = 4;
 }
 
 void StackMachine::AddOps(){
   int next_ok = 0;
+  current_added_ops_ = 0;
   next_ok = AddOp("Add", 4, next_ok);
   next_ok = AddOp("Mul", 4, next_ok);
   next_ok = AddOp("XOR", 4, next_ok);
