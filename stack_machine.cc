@@ -15,6 +15,10 @@ StackMachine::~StackMachine(){
 }
 
 long long StackMachine::GetBits(int code_idx){
+  if(current_nr_ops_ == 0){
+    return code_idx;
+  }
+
   if(code_idx >= kNrOps){
     return ((1 << kConstPrefixLength) - 1) | (1 << (code_idx - kNrOps + kConstPrefixLength));
   }
@@ -22,6 +26,10 @@ long long StackMachine::GetBits(int code_idx){
 }
 
 int StackMachine::GetNrBits(int code_idx){
+  if(current_nr_ops_ == 0){
+    return 2;
+  }
+
   if(code_idx >= kNrOps){
     return kConstPrefixLength + 1 + code_idx - kNrOps;
   }
