@@ -8,7 +8,7 @@
 
 #include "stack_machine.h"
 
-const int kMaxDepth = 36;
+const int kMaxDepth = 38;
 const int kMaxInterest = 10;
 
 using namespace std;
@@ -24,8 +24,6 @@ typedef map<vector<long long>, ProgramStore> datamap;
 datamap dm;
 
 /*
-Long run
-
 Profiling run
 
 Python-connection
@@ -35,8 +33,6 @@ store in prefix tree (truncate?)
   shortest program, len, bits
 
 read bits
-
-incl two start bits
 
 optimize program generation - do not generate swap swap, for example.
   Although it could be useful if a jump goes to the second swap, it is so
@@ -82,14 +78,14 @@ void printOutput(StackMachine &sm){
   printf("\n");
 }
 
-int search(StackMachine &sm){
+long long search(StackMachine &sm){
   if(sm.Ready()){
     sm.Execute();
     store(sm);
     return 1;
   }
 
-  int evals = 0;
+  long long evals = 0;
   for(int i = 0; i < sm.NrChoices(); i++){
     int len = sm.AddCode(i);
     if(len){
@@ -102,7 +98,7 @@ int search(StackMachine &sm){
 }
 
 void writeMap(){
-  string fname = (boost::format("Depth%1%.txt") % kMaxDepth).str();
+  string fname = (boost::format("Depth.v2.%1%.txt") % kMaxDepth).str();
   
   FILE *f = fopen(fname.c_str(), "wt");
   BOOST_FOREACH(const datamap::value_type& x, dm){
@@ -124,18 +120,21 @@ int main(void){
 
   using namespace boost::posix_time;
   ptime old = second_clock::local_time();
-  int evals = 0;
+  ptime now;
+  time_duration td;
+  long long evals = 0;
   for(int maxdepth = 0; maxdepth <= kMaxDepth; maxdepth++){
-    ptime now = second_clock::local_time();
-    time_duration td = now - old;
-    printf("Testing depth %d (%d runs, %lu unique) - %s\n", maxdepth, evals, (unsigned long)dm.size(), to_simple_string(td).c_str());
+    now = second_clock::local_time();
+    td = now - old;
+    printf("Testing depth %d (%lld runs, %lu unique) - %s\n", maxdepth, evals, (unsigned long)dm.size(), to_simple_string(td).c_str());
     old = now;
 
     sm.set_max_bits(maxdepth);
     evals += search(sm);
   }
 
-  printf("%d runs, %lu unique\n", evals, (unsigned long)dm.size());
+  td = second_clock::local_time() - old;
+  printf("%lld runs, %lu unique - %s\n", evals, (unsigned long)dm.size(), to_simple_string(td).c_str());
 
   writeMap();
 

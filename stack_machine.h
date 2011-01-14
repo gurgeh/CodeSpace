@@ -38,7 +38,7 @@ class StackMachine : public Machine{
   void AddOps();
   int AddOp(std::string name, int bit_length, int next_ok);
 
-  void AddSuffix();
+  void AddSuffix(int dest);
 
   void push(long long val);
   long long peek();

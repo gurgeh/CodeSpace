@@ -74,7 +74,6 @@ long long StackMachine::pop(){
 }
 
 void StackMachine::Execute(){
-  AddSuffix();
   std::fill_n(stack_, stack_size_, default_stack_value_);
 
   int iptr = 0;
@@ -84,6 +83,8 @@ void StackMachine::Execute(){
   stackptr_ = 0;
   output_length_ = 0;
   long long temp1, temp2;
+
+  AddSuffix(current_program_[iptr++]);
 
   while(true){
     int op = current_program_[iptr++];
@@ -163,14 +164,18 @@ void StackMachine::Execute(){
 }
 
 int StackMachine::NrChoices(){
+  if(nr_current_bits_ == 0){
+    return 4;
+  }
+
   int nrconsts = max_bits_ - (nr_current_bits_ + 2);
   if(nrconsts < (4 - 2)) return 0; //(smallest op - 2)
   return 16 + nrconsts;
 }
 
-void StackMachine::AddSuffix(){
+void StackMachine::AddSuffix(int dest){
   current_program_[current_nr_ops_++] = 6;
-  current_program_[current_nr_ops_++] = 16;
+  current_program_[current_nr_ops_++] = 16 + dest;
   current_program_[current_nr_ops_++] = 4;
 }
 
