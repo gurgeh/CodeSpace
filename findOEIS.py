@@ -47,7 +47,7 @@ def checkSeq(fname, moe):
     print cnt
     return dpth
 
-def findPrimes(fname):
+def findPrimes(fname, allowedMiss=0):
     f = open(fname)
     i = 0
     j = 0
@@ -69,14 +69,15 @@ def findPrimes(fname):
         if not good: continue
 
         j += 1
-        allPrimes = True
+        misses = 0
         for x in xs:
             if not isPrime(x):
-                allPrimes = False
-                break
+                misses += 1
+                if misses > allowedMiss:
+                    break
 
-        if allPrimes:
-            print xs, nr, depth, program
+        if misses <= allowedMiss:
+            print misses, xs, nr, depth, program
     print i, j
             
     f.close()

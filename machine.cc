@@ -22,7 +22,7 @@ void Machine::DelCode(int nr_bits){
 void Machine::Load(long long code, int nr_bits){
   while(nr_bits>0){
     int nr_used_bits = ReadBits(code);
-    printf("Used %d\n", nr_used_bits);
+    //printf("Used %d\n", nr_used_bits);
     if(nr_used_bits <= 0){
       printf("Something odd - no bits used\n");
       return;

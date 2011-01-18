@@ -4,7 +4,7 @@
 #include <string>
 #include<stdio.h>
 
-const int kMaxOutput = 400;
+const int kMaxOutput = 1000;
 
 class Machine{
  public:

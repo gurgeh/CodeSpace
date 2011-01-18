@@ -41,7 +41,7 @@ int StackMachine::ReadBits(long long code){
       }
         
     }
-    printf("Const %d\n", i - kConstPrefixLength);
+    //printf("Const %d\n", i - kConstPrefixLength);
     AddCode(kNrOps + i - kConstPrefixLength);
     return i + 1;
   }
@@ -253,5 +253,14 @@ std::string StackMachine::ShowCode(){
     s += "\n";
   }
 
+  return s;
+}
+
+std::string StackMachine::ShowOutput(){
+  std::string s;
+  for(int i = 0; i < output_length_; i++){
+    s += (boost::format("%1%") % output_[i]).str();
+    if(i + 1 != output_length_) s += ", ";
+  }
   return s;
 }

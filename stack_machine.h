@@ -28,6 +28,7 @@ class StackMachine : public Machine{
   void DelCode(int nr_bits);
 
   std::string ShowCode();
+  std::string ShowOutput();
  protected:
   int ReadBits(long long code);
 
