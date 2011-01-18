@@ -6,17 +6,14 @@
 #include <string.h>
 #include <stdio.h>
 
-#include "machine.h"
+#include <boost/format.hpp>
 
-/*
-  Dynamic NrChoices when few bits left
-  Print program
-  Load bitseq
- */
+#include "machine.h"
 
 const int kNrOps = 16;
 const int kMaxProgramLength = 20;
 const int kConstPrefixLength = 2;
+const long long kConstPrefixMask = (1 << kConstPrefixLength) - 1;
 
 class StackMachine : public Machine{
  public:
@@ -30,7 +27,10 @@ class StackMachine : public Machine{
   int AddCode(int code_idx);
   void DelCode(int nr_bits);
 
+  std::string ShowCode();
  protected:
+  int ReadBits(long long code);
+
   long long GetBits(int code_idx);
   int GetNrBits(int code_idx);
   

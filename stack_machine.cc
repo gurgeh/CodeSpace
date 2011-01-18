@@ -20,9 +20,41 @@ long long StackMachine::GetBits(int code_idx){
   }
 
   if(code_idx >= kNrOps){
-    return ((1 << kConstPrefixLength) - 1) | (1 << (code_idx - kNrOps + kConstPrefixLength));
+    return kConstPrefixMask | (1 << (code_idx - kNrOps + kConstPrefixLength));
   }
   return op_bits_[code_idx];
+}
+
+int StackMachine::ReadBits(long long code){
+  if(current_nr_ops_ == 0){
+    AddCode(code & 3);
+    return 2;
+  }
+
+  if((code & kConstPrefixMask) == kConstPrefixMask){
+    int i = kConstPrefixLength;
+    while(!((code >> i) & 1)){
+      i++;
+      if(i == 40){
+        printf("Something odd!\n");
+        return 0;
+      }
+        
+    }
+    printf("Const %d\n", i - kConstPrefixLength);
+    AddCode(kNrOps + i - kConstPrefixLength);
+    return i + 1;
+  }
+
+  /*NOTE: Can be made faster with lookup table*/
+  for(int code_idx = 0; code_idx < kNrOps; code_idx++){
+    int mask = (1 << nr_op_bits_[code_idx]) - 1;
+    if((code & mask) == op_bits_[code_idx]){
+      AddCode(code_idx);
+      return nr_op_bits_[code_idx];
+    }
+  }
+  return 0;
 }
 
 int StackMachine::GetNrBits(int code_idx){
@@ -92,10 +124,10 @@ void StackMachine::Execute(){
   output_length_ = 0;
   long long temp1, temp2;
 
-  AddSuffix(current_program_[iptr++]);
+  AddSuffix(current_program_[0]);
 
   while(true){
-    int op = current_program_[iptr++];
+    int op = current_program_[1 + (iptr++)];
 
     switch(op){
     case 0: //Add
@@ -111,11 +143,11 @@ void StackMachine::Execute(){
       temp1 = pop(); //C++ does not guarantee evaluation order
       cflag = temp1 < pop();
       break;
-    case 4: //Jump
-      if(used_jumps++ < max_jumps_) iptr = pop() % current_nr_ops_;
-      break;
-    case 5: //If
+    case 4: //If
       if(not cflag) iptr++;
+      break;
+    case 5: //Jmp
+      if(used_jumps++ < max_jumps_) iptr = pop() % (current_nr_ops_ - 1);
       break;
     case 6: //Out
       output_[output_length_++] = peek();
@@ -165,8 +197,7 @@ void StackMachine::Execute(){
     }
 
     if(iptr < 0) iptr = 0;
-    else if(iptr == current_nr_ops_) break;
-    else iptr %= current_nr_ops_;
+    else if(iptr >= current_nr_ops_) break;
   }
   current_nr_ops_ -= 3; //Remove suffix
 }
@@ -184,7 +215,7 @@ int StackMachine::NrChoices(){
 void StackMachine::AddSuffix(int dest){
   current_program_[current_nr_ops_++] = 6;
   current_program_[current_nr_ops_++] = 16 + dest;
-  current_program_[current_nr_ops_++] = 4;
+  current_program_[current_nr_ops_++] = 5;
 }
 
 void StackMachine::AddOps(){
@@ -199,12 +230,28 @@ void StackMachine::AddOps(){
   next_ok = AddOp("Out", 4, next_ok);
   next_ok = AddOp("Dup", 4, next_ok);
 
-  next_ok = AddOp("Mod", 8, next_ok);
-  next_ok = AddOp("Over", 8, next_ok);
-  next_ok = AddOp("Swap", 8, next_ok);
-  next_ok = AddOp("Div", 8, next_ok);
-  next_ok = AddOp("OR", 8, next_ok);
-  next_ok = AddOp("AND", 8, next_ok);
-  next_ok = AddOp("Equal", 8, next_ok);
-  AddOp("Neg", 8, next_ok);
+  next_ok = AddOp("Mod", 5, next_ok);
+  next_ok = AddOp("Over", 5, next_ok);
+  next_ok = AddOp("Swap", 5, next_ok);
+  next_ok = AddOp("Div", 5, next_ok);
+  next_ok = AddOp("OR", 5, next_ok);
+  next_ok = AddOp("AND", 5, next_ok);
+  next_ok = AddOp("Equal", 5, next_ok);
+  AddOp("Neg", 5, next_ok);
+}
+
+std::string StackMachine::ShowCode(){
+  std::string s = (boost::format("Setjmp %1%\n") % current_program_[0]).str();
+
+  for(int i = 1; i < current_nr_ops_; i++){
+    int op = current_program_[i];
+    if(op >= kNrOps){
+      s += (boost::format("Push %1%") % (op - kNrOps)).str();
+    } else {
+      s += op_names_[op];
+    }
+    s += "\n";
+  }
+
+  return s;
 }

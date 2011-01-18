@@ -1,5 +1,16 @@
-env_opt = Environment(CCFLAGS = '-O3')
-env_dbg = Environment(CCFLAGS = '-ggdb -O0')
-env = Environment()
+env_opt = Environment(CPPPATH = '/usr/include/python2.6', CCFLAGS = '-O3')
+env_dbg = Environment(CPPPATH = '/usr/include/python2.6', CCFLAGS = '-ggdb -O0 -I/usr/include/python2.6')
+
 env_opt.Program('codespace', source = ['machine.cc', 'stack_machine.cc', 'test.cc'])
 
+
+
+
+env = Environment(
+	CPPPATH=["/usr/include/python2.6"],
+	CXXFLAGS="-ftemplate-depth-100 -DBOOST_PYTHON_DYNAMIC_LIB -shared",
+	LIBPATH=["/usr/lib/python2.6/config", '/usr/lib'],
+	LIBS=["python2.6", "util", 'boost_python']
+)
+
+env.SharedLibrary(target='PyMachine', source=['machine.cc', 'stack_machine.cc', 'PyMachine.cc'])

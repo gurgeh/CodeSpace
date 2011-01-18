@@ -8,7 +8,7 @@
 
 #include "stack_machine.h"
 
-const int kMaxDepth = 38;
+const int kMaxDepth = 36;
 const int kMaxInterest = 10;
 
 using namespace std;
@@ -24,15 +24,28 @@ typedef map<vector<long long>, ProgramStore> datamap;
 datamap dm;
 
 /*
-Profiling run
+run with gdb to find exception..
 
-Python-connection
+run specific program
+
+check prime programs
+--
+analyze shortest programs
+measure how many sequences hit OEIS
+
+--
+optimize execution with cutoffs
+
+give command line options to run several processes
+
+--
+
+
+Profiling run
 
 store in prefix tree (truncate?)
   tot with prefix
   shortest program, len, bits
-
-read bits
 
 optimize program generation - do not generate swap swap, for example.
   Although it could be useful if a jump goes to the second swap, it is so
@@ -46,6 +59,10 @@ maybe give them addressable memory and more instructions
 
 compile programs to x86 (GPU?)
   Use floating point?
+(#include <fpu_control.h>
+
+_FPU_SETCW (_FPU_DEFAULT);
+Since _FPU_DEFAULT defaults to _FPU_MASK_ZM set (ZM stands for Zero-Divide-Mask).)
 
 Randomize longer programs
 
@@ -97,8 +114,8 @@ long long search(StackMachine &sm){
   return evals;
 }
 
-void writeMap(){
-  string fname = (boost::format("Depth.v2.%1%.txt") % kMaxDepth).str();
+void writeMap(int depth){
+  string fname = (boost::format("data/Depth.v2.%1%.txt") % depth).str();
   
   FILE *f = fopen(fname.c_str(), "wt");
   BOOST_FOREACH(const datamap::value_type& x, dm){
@@ -118,6 +135,15 @@ void writeMap(){
 int main(void){
   StackMachine sm(10, 1, 20, 0);
 
+  
+  /*  sm.set_max_bits(24);
+  sm.Load(8943118LL, 24);
+  printf("%d\n%s\n", sm.get_nr_current_bits(), sm.ShowCode().c_str());
+  sm.Execute();
+  printOutput(sm);
+
+  return 0;*/
+
   using namespace boost::posix_time;
   ptime old = second_clock::local_time();
   ptime now;
@@ -131,12 +157,11 @@ int main(void){
 
     sm.set_max_bits(maxdepth);
     evals += search(sm);
+    writeMap(maxdepth);
   }
 
   td = second_clock::local_time() - old;
   printf("%lld runs, %lu unique - %s\n", evals, (unsigned long)dm.size(), to_simple_string(td).c_str());
-
-  writeMap();
 
   return 0;
 }
