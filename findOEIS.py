@@ -1,3 +1,5 @@
+import PyMachine
+
 def mapSeq(fname, maxi=1000000000):
     d = {}
     f = open(fname)
@@ -48,6 +50,7 @@ def checkSeq(fname, moe):
     return dpth
 
 def findPrimes(fname, allowedMiss=0):
+    ps = []
     f = open(fname)
     i = 0
     j = 0
@@ -78,9 +81,11 @@ def findPrimes(fname, allowedMiss=0):
 
         if misses <= allowedMiss:
             print misses, xs, nr, depth, program
+            ps.append((program, depth))
     print i, j
             
     f.close()
+    return ps
 
 def isPrime(n):
     '''check if integer n is a prime'''
@@ -98,3 +103,31 @@ def isPrime(n):
         if n % x == 0:
             return False
     return True
+
+def extendPotentialPrimes(fname, maxIterations, allowedMiss):
+    ps = findPrimes(fname, allowedMiss)
+    pm = PyMachine.PyMachine(maxIterations, 1, maxIterations, 0, maxIterations)
+    
+    extended = []
+    for program, plen in ps:
+        pm.load(long(program), int(plen))
+        pm.execute()
+        oldp = -1
+        outputs = []
+        nrisp = 0
+        v = pm.getOutput()
+        print [x for x in v]
+        for p in v:
+            if p <= oldp:
+                break
+
+            isp = isPrime(p)
+            nrisp += isp
+            outputs.append((p, isp))
+
+        if nrisp:
+            extended.append((float(nrisp) / len(outputs), nrisp, isp, outputs, program, plen))
+    extended.sort()
+    extended.reverse()
+
+    return extended

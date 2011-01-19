@@ -2,9 +2,8 @@
 
 #include "stack_machine.h"
 /*
-Why segfault in new factoring?
+automatically extend programs with 1 prime error
 
-check prime programs (also allow one or two errors)
 --
 analyze shortest programs
 measure how many sequences hit OEIS
@@ -15,16 +14,12 @@ as possible for a certain depth.
 --
 optimize execution with cutoffs
 
-give command line options to run several processes
+give command line option to check only part of a depth
 
 --
 
 --
 Profiling run
-
-store in prefix tree (truncate?)
-  tot with prefix
-  shortest program, len, bits
 
 optimize program generation - do not generate swap swap, for example.
   Although it could be useful if a jump goes to the second swap, it is so

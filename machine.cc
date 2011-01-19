@@ -20,6 +20,9 @@ void Machine::DelCode(int nr_bits){
 }
 
 void Machine::Load(long long code, int nr_bits){
+  max_bits_ = nr_bits;
+  nr_current_bits_ = 0;
+  
   while(nr_bits>0){
     int nr_used_bits = ReadBits(code);
     //printf("Used %d\n", nr_used_bits);
@@ -30,4 +33,13 @@ void Machine::Load(long long code, int nr_bits){
     nr_bits -= nr_used_bits;
     code >>= nr_used_bits;
   }
+}
+
+std::string Machine::ShowOutput(){
+  std::string s;
+  for(int i = 0; i < output_length_; i++){
+    s += (boost::format("%1%") % output_[i]).str();
+    if(i + 1 != output_length_) s += ", ";
+  }
+  return s;
 }

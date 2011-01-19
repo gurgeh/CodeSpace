@@ -1,8 +1,11 @@
 #ifndef MACHINE_H
 #define MACHINE_H
 
+#include <vector>
 #include <string>
-#include<stdio.h>
+#include <stdio.h>
+
+#include <boost/format.hpp>
 
 const int kMaxOutput = 1000;
 
@@ -32,8 +35,10 @@ class Machine{
   virtual int NrChoices() = 0;
   virtual std::string ShowCode() = 0;
 
-  void Load(long long code, int nr_bits);
- 
+  virtual void Load(long long code, int nr_bits);
+
+  std::vector<long long> GetOutput(){return std::vector<long long>(output_, output_ + output_length_);}
+  std::string ShowOutput();
  protected:
   virtual long long GetBits(int code_idx) = 0;
   virtual int GetNrBits(int code_idx) = 0;

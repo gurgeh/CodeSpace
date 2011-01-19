@@ -11,7 +11,7 @@ int main(int argc, char *argv[]){
   int stack_size = atoi(argv[i++]);
   int stack_default = 1;
   
-  StackMachine sm(stack_size, stack_default, max_jmps, code_len);
+  StackMachine sm(stack_size, stack_default, max_jmps, code_len, 1000000000);
   //sm.set_max_bits(code_len); //Why needed? (if needed)
   sm.Load(code, code_len);
   printf("--- Code (%d) ---\n%s\n\n", sm.get_nr_current_bits(), sm.ShowCode().c_str());

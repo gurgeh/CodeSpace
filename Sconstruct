@@ -9,7 +9,8 @@ env = Environment(
 	CPPPATH=["/usr/include/python2.6"],
 	CXXFLAGS="-ftemplate-depth-100 -DBOOST_PYTHON_DYNAMIC_LIB -shared",
 	LIBPATH=["/usr/lib/python2.6/config", '/usr/lib'],
-	LIBS=["python2.6", "util", 'boost_python']
+	LIBS=["python2.6", "util", 'boost_python'],
+    SHLIBPREFIX=''
 )
 
 env.SharedLibrary(target='PyMachine', source=['machine.cc', 'stack_machine.cc', 'PyMachine.cc'])

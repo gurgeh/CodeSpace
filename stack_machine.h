@@ -10,6 +10,7 @@
 
 #include "machine.h"
 
+const int kWakeup = 14;
 const int kNrOps = 16;
 const int kMaxProgramLength = 20;
 const int kConstPrefixLength = 2;
@@ -17,7 +18,7 @@ const long long kConstPrefixMask = (1 << kConstPrefixLength) - 1;
 
 class StackMachine : public Machine{
  public:
-  StackMachine(int stack_size, long long default_stack_value, int max_jumps, int max_bits);
+  StackMachine(int stack_size, long long default_stack_value, int max_jumps, int max_bits, int max_useful_outputs);
 
   ~StackMachine();
 
@@ -27,8 +28,9 @@ class StackMachine : public Machine{
   int AddCode(int code_idx);
   void DelCode(int nr_bits);
 
+  void Load(long long code, int nr_bits);
+
   std::string ShowCode();
-  std::string ShowOutput();
  protected:
   int ReadBits(long long code);
 
@@ -55,6 +57,7 @@ class StackMachine : public Machine{
 
   int stackptr_;
   int max_jumps_;
+  int max_useful_outputs_;
   int stack_size_;
   int current_nr_ops_;
   int current_program_[kMaxProgramLength];

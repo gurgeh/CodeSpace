@@ -1,10 +1,11 @@
 #include "stack_machine.h"
 
-StackMachine::StackMachine(int stack_size, long long default_stack_value, int max_jumps, int max_bits)
+StackMachine::StackMachine(int stack_size, long long default_stack_value, int max_jumps, int max_bits, int max_useful_outputs)
   : Machine(max_bits),
     stack_size_(stack_size),
     default_stack_value_(default_stack_value),
     max_jumps_(max_jumps),
+    max_useful_outputs_(max_useful_outputs),
     current_nr_ops_(0){
   AddOps();
   stack_ = new long long[stack_size_];
@@ -82,6 +83,11 @@ void StackMachine::DelCode(int nr_bits){
   Machine::DelCode(nr_bits);
 }
 
+void StackMachine::Load(long long code, int nr_bits){
+  current_nr_ops_ = 0;
+  Machine::Load(code, nr_bits);
+}
+
 int StackMachine::AddOp(std::string name, int bit_length, int next_ok){
   op_names_[current_added_ops_] = name;
   nr_op_bits_[current_added_ops_] = bit_length;
@@ -120,6 +126,7 @@ void StackMachine::Execute(){
   int used_jumps = 0;
   bool cflag = false;
 
+  int totinstr = 0;
   stackptr_ = 0;
   output_length_ = 0;
   long long temp1, temp2;
@@ -151,6 +158,7 @@ void StackMachine::Execute(){
       break;
     case 6: //Out
       output_[output_length_++] = peek();
+      if(output_length_ == max_useful_outputs_) iptr = current_nr_ops_;
       break;
     case 7: //Dup
       push(peek());
@@ -195,6 +203,9 @@ void StackMachine::Execute(){
     default: //Push const
       push(op - 16);
     }
+
+    if(output_length_ == 0 && ++totinstr > kWakeup) break;
+    
 
     if(iptr < 0) iptr = 0;
     else if(iptr >= current_nr_ops_) break;
@@ -256,11 +267,3 @@ std::string StackMachine::ShowCode(){
   return s;
 }
 
-std::string StackMachine::ShowOutput(){
-  std::string s;
-  for(int i = 0; i < output_length_; i++){
-    s += (boost::format("%1%") % output_[i]).str();
-    if(i + 1 != output_length_) s += ", ";
-  }
-  return s;
-}
