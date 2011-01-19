@@ -121,12 +121,12 @@ def extendPotentialPrimes(fname, maxIterations, allowedMiss):
             if p <= oldp:
                 break
 
-            isp = isPrime(p)
+            isp = PyMachine.checkPrime(p)
             nrisp += isp
             outputs.append((p, isp))
 
         if nrisp:
-            extended.append((float(nrisp) / len(outputs), nrisp, isp, outputs, program, plen))
+            extended.append((float(nrisp) / len(outputs), nrisp, len(outputs), outputs, program, plen))
     extended.sort()
     extended.reverse()
 

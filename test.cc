@@ -2,9 +2,6 @@
 
 #include "stack_machine.h"
 /*
-automatically extend programs with 1 prime error
-
---
 analyze shortest programs
 measure how many sequences hit OEIS
 
