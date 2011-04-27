@@ -74,7 +74,7 @@ def findPrimes(fname, allowedMiss=0):
         j += 1
         misses = 0
         for x in xs:
-            if not isPrime(x):
+            if not PyMachine.checkPrime(x):
                 misses += 1
                 if misses > allowedMiss:
                     break

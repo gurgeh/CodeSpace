@@ -10,10 +10,6 @@ int main(int argc, char *argv[]){
   int max_interest = atoi(argv[i++]);
 
   StackMachine sm(stack_size, 1, max_jmps, max_bits, max_interest);
-  if(sm.get_max_bits() != max_bits){
-    printf("Why not equal?! %d=%d\n", sm.get_max_bits(), max_bits);
-    sm.set_max_bits(max_bits);
-  }
 
   BruteForce bf(&sm, max_interest);
   bf.Search();

@@ -2,27 +2,23 @@
 
 #include "stack_machine.h"
 /*
-analyze shortest programs
-measure how many sequences hit OEIS
+
 
 An optimal encoding gives as many unique sequences and as many OEIS hits
 as possible for a certain depth.
+  Measure current score for those two
+  Make 16 new operators and let all have 5 bits - measure score again
+    sqrt, not, pow, 
+  Calculate huffman coding
+  Measure score after recoding of operators (1-gram, 2-gram, 3-gram, more?)
 
 --
-optimize execution with cutoffs
 
-give command line option to check only part of a depth
-
---
+give command line option to check only part of a depth, for parallellization
 
 --
 Profiling run
 
-optimize program generation - do not generate swap swap, for example.
-  Although it could be useful if a jump goes to the second swap, it is so
-  rare that we could disallow them in the language.
-
-find interesting sequences and "best operators"
 
 try giving programs input in stack
 
