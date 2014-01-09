@@ -10,7 +10,7 @@ nothing about, let us call this your history, X. Then, the best estimate for the
 
 The more programs that output X : Z the more likely Z is to occur next in the sequence. The space of all programs is dominated by the
 short programs, since permutations and modifications of those will take up a sizeable proportion of the space. The best guess for
-the next symbol is often given by the shortest possibly program that outputs X.
+the next symbol is often given by the shortest possible program that outputs X.
 
 For more info, see my blog post here:
 http://fendrich.se/blog/2010/12/28/compression-prediction-and-artificial/
