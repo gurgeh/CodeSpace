@@ -1,15 +1,15 @@
-env_opt = Environment(CPPPATH = '/usr/include/python2.6', CCFLAGS = '-O3')
-env_dbg = Environment(CPPPATH = '/usr/include/python2.6', CCFLAGS = '-ggdb -O0 -I/usr/include/python2.6')
+env_opt = Environment(CPPPATH = '/usr/include/python2.7', CCFLAGS = '-O3')
+env_dbg = Environment(CPPPATH = '/usr/include/python2.7', CCFLAGS = '-ggdb -O0 -I/usr/include/python2.7')
 
 env_opt.Program('codespace', source = ['machine.cc', 'stack_machine.cc', 'brute_force.cc', 'run_search.cc'])
 
 env_opt.Program('runstack', source = ['machine.cc', 'stack_machine.cc', 'execute_code.cc'])
 
 env = Environment(
-	CPPPATH=["/usr/include/python2.6"],
+	CPPPATH=["/usr/include/python2.7"],
 	CXXFLAGS="-ftemplate-depth-100 -DBOOST_PYTHON_DYNAMIC_LIB -shared",
-	LIBPATH=["/usr/lib/python2.6/config", '/usr/lib'],
-	LIBS=["python2.6", "util", 'boost_python'],
+	LIBPATH=["/usr/lib/python2.7/config", '/usr/lib'],
+	LIBS=["python2.7", "util", 'boost_python'],
     SHLIBPREFIX=''
 )
 
